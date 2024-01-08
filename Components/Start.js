@@ -6,9 +6,24 @@ import {
     TextInput,
     TouchableOpacity,
     ImageBackground,
+    Alert,
 } from "react-native";
+import { getAuth, signInAnonymously } from "firebase/auth";
+
 import { useState } from "react";
 export default Start = ({ navigation }) => {
+    const auth = getAuth();
+
+    const signInUser = () => {
+        signInAnonymously(auth)
+            .then((result) => {
+                navigation.navigate("Chat", { userID: result.user.uid });
+                Alert.alert("Signed in Successfully!");
+            })
+            .catch((error) => {
+                Alert.alert("Unable to sign in, try later again.");
+            });
+    };
     const [user, setUser] = useState("");
     const [color, setColor] = useState("");
     return (
@@ -33,7 +48,7 @@ export default Start = ({ navigation }) => {
                     accessibilityHint="Moves to a different screen"
                     accessibilityRole="button"
                     style={styles.buttonWrapper}
-                    onPress={() => navigation.navigate("Chat", { user: user, color: color })}>
+                    onPress={signInUser}>
                     <Text style={styles.buttonText}>Submit</Text>
                 </TouchableOpacity>
 

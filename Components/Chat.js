@@ -1,37 +1,41 @@
 import { useState, useCallback, useEffect } from "react";
-import { StyleSheet, View, Text, KeyboardAvoidingView, ImageBackground } from "react-native";
+import { StyleSheet, View, Text, KeyboardAvoidingView, ImageBackground, Alert } from "react-native";
 import { Bubble, GiftedChat, Day } from "react-native-gifted-chat";
+import { collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
 
-export default Chat = ({ route, navigation }) => {
-    const { user, color } = route.params;
-    useEffect(() => {
-        navigation.setOptions({ title: user });
-    }, []);
-
+export default Chat = ({ route, navigation, db }) => {
+    const { user, color, userID } = route.params;
     const [messages, setMessages] = useState([]);
 
-    // Static Message
     useEffect(() => {
-        setMessages([
-            {
-                _id: 1,
-                text: "Hello developer",
-                createdAt: new Date(),
-                user: {
-                    _id: 2,
-                    name: "React Native",
-                    avatar: "https://placeimg.com/140/140/any",
-                },
-            },
-            {
-                _id: 2,
-                text: "This is a system message",
-                createdAt: new Date(),
-                system: true,
-            },
-        ]);
+        // navigation.setOptions({ title: name });
+
+        const q = query(
+            collection(db, "messages"),
+            // where("uid", "==", userID),
+            orderBy("createdAt", "desc")
+        );
+        const unsubMessages = onSnapshot(q, (documentsSnapshot) => {
+            let newMessages = [];
+            documentsSnapshot.forEach((doc) => {
+                newMessages.push({
+                    id: doc.id,
+                    ...doc.data(),
+                    createdAt: new Date(doc.data().createdAt.toMillis()),
+                });
+            });
+            setMessages(newMessages);
+        });
+
+        return () => {
+            if (unsubMessages) unsubMessages();
+        };
     }, []);
+
+    // Static Message
+    useEffect(() => {}, []);
     const onSend = (newMessages) => {
+        addDoc(collection(db, "messages"), newMessages[0]);
         setMessages((previousMessages) => GiftedChat.append(previousMessages, newMessages));
     };
 
