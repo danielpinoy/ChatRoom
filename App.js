@@ -1,16 +1,27 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { useEffect } from "react";
+import { StyleSheet, Text, View, Alert } from "react-native";
 import Start from "./Components/Start";
 import Chat from "./Components/Chat";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, disableNetwork, enableNetwork } from "firebase/firestore";
 import { LogBox } from "react-native";
+import { useNetInfo } from "@react-native-community/netinfo";
+
 LogBox.ignoreLogs(["AsyncStorage has been extracted from"]);
 export default function App() {
+    const connectionStatus = useNetInfo();
     const Stack = createNativeStackNavigator();
 
+    useEffect(() => {
+        if (connectionStatus.isConnected === false) {
+            Alert.alert("Connection Lost!");
+            disableNetwork(db);
+        } else if (connectionStatus.isConnected === true) {
+            enableNetwork(db);
+        }
+    }, [connectionStatus.isConnected]);
     // Your web app's Firebase configuration
     const firebaseConfig = {
         apiKey: "AIzaSyAWt4NGM3S_nz5kSLykTj-i5JX-1PWi-cA",
@@ -28,7 +39,11 @@ export default function App() {
         <NavigationContainer>
             <Stack.Navigator initialRouteName="Start">
                 <Stack.Screen name="Home" component={Start} />
-                <Stack.Screen name="Chat">{(props) => <Chat db={db} {...props} />}</Stack.Screen>
+                <Stack.Screen name="Chat">
+                    {(props) => (
+                        <Chat isConnected={connectionStatus.isConnected} db={db} {...props} />
+                    )}
+                </Stack.Screen>
             </Stack.Navigator>
         </NavigationContainer>
     );

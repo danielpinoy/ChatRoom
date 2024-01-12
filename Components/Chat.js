@@ -1,37 +1,52 @@
-import { useState, useCallback, useEffect } from "react";
-import { StyleSheet, View, Text, KeyboardAvoidingView, ImageBackground, Alert } from "react-native";
-import { Bubble, GiftedChat, Day } from "react-native-gifted-chat";
+import { useState, useEffect } from "react";
+import { StyleSheet, View, KeyboardAvoidingView, ImageBackground, Alert } from "react-native";
+import { Bubble, GiftedChat, Day, InputToolbar } from "react-native-gifted-chat";
 import { collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default Chat = ({ route, navigation, db }) => {
+export default Chat = ({ route, db, isConnected }) => {
     const { user, color, userID } = route.params;
     const [messages, setMessages] = useState([]);
 
+    const loadCachedLists = async () => {
+        const cachedLists = (await AsyncStorage.getItem("chatMessage-list")) || [];
+        setMessages(JSON.parse(cachedLists));
+    };
     useEffect(() => {
         // navigation.setOptions({ title: name });
-
-        const q = query(
-            collection(db, "messages"),
-            // where("uid", "==", userID),
-            orderBy("createdAt", "desc")
-        );
-        const unsubMessages = onSnapshot(q, (documentsSnapshot) => {
-            let newMessages = [];
-            documentsSnapshot.forEach((doc) => {
-                newMessages.push({
-                    id: doc.id,
-                    ...doc.data(),
-                    createdAt: new Date(doc.data().createdAt.toMillis()),
+        let unsubMessages;
+        if (isConnected === true) {
+            const q = query(
+                collection(db, "messages"),
+                // where("uid", "==", userID),
+                orderBy("createdAt", "desc")
+            );
+            unsubMessages = onSnapshot(q, (documentsSnapshot) => {
+                let newMessages = [];
+                documentsSnapshot.forEach((doc) => {
+                    newMessages.push({
+                        id: doc.id,
+                        ...doc.data(),
+                        createdAt: new Date(doc.data().createdAt.toMillis()),
+                    });
                 });
+                cacheMessageLists(newMessages);
+                setMessages(newMessages);
             });
-            setMessages(newMessages);
-        });
+        } else loadCachedLists();
 
         return () => {
             if (unsubMessages) unsubMessages();
         };
     }, []);
 
+    const cacheMessageLists = async (listToCache) => {
+        try {
+            await AsyncStorage.setItem("chatMessage-list", JSON.stringify(listToCache));
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
     // Static Message
     useEffect(() => {}, []);
     const onSend = (newMessages) => {
@@ -58,7 +73,10 @@ export default Chat = ({ route, navigation, db }) => {
 
     // Date
     const renderDay = (props) => <Day {...props} textStyle={{ color: "#000", fontSize: 10 }} />;
-
+    const renderInputToolbar = (props) => {
+        if (isConnected) return <InputToolbar {...props} />;
+        else return null;
+    };
     return (
         <ImageBackground source={require("../img/chatbox-img.gif")} style={styles.backgroundImage}>
             <View style={styles.container}>
@@ -67,6 +85,7 @@ export default Chat = ({ route, navigation, db }) => {
                     renderBubble={renderBubble}
                     renderDay={renderDay}
                     onSend={(messages) => onSend(messages)}
+                    renderInputToolbar={renderInputToolbar}
                     user={{
                         _id: 1,
                     }}
