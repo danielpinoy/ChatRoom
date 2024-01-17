@@ -8,6 +8,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore, disableNetwork, enableNetwork } from "firebase/firestore";
 import { LogBox } from "react-native";
 import { useNetInfo } from "@react-native-community/netinfo";
+import { getStorage } from "firebase/storage";
 
 LogBox.ignoreLogs(["AsyncStorage has been extracted from"]);
 export default function App() {
@@ -33,6 +34,7 @@ export default function App() {
     };
 
     const app = initializeApp(firebaseConfig);
+    const storage = getStorage(app);
 
     const db = getFirestore(app);
     return (
@@ -41,7 +43,12 @@ export default function App() {
                 <Stack.Screen name="Home" component={Start} />
                 <Stack.Screen name="Chat">
                     {(props) => (
-                        <Chat isConnected={connectionStatus.isConnected} db={db} {...props} />
+                        <Chat
+                            isConnected={connectionStatus.isConnected}
+                            db={db}
+                            storage={storage}
+                            {...props}
+                        />
                     )}
                 </Stack.Screen>
             </Stack.Navigator>

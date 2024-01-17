@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { StyleSheet, View, KeyboardAvoidingView, ImageBackground, Alert } from "react-native";
+import { StyleSheet, View, KeyboardAvoidingView, ImageBackground } from "react-native";
 import { Bubble, GiftedChat, Day, InputToolbar } from "react-native-gifted-chat";
 import { collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-export default Chat = ({ route, db, isConnected }) => {
+import CustomActions from "./CustomActions";
+import MapView from "react-native-maps";
+export default Chat = ({ route, db, isConnected, storage }) => {
     const { user, color, userID } = route.params;
     const [messages, setMessages] = useState([]);
 
@@ -77,6 +78,26 @@ export default Chat = ({ route, db, isConnected }) => {
         if (isConnected) return <InputToolbar {...props} />;
         else return null;
     };
+    const renderCustomActions = (props) => {
+        return <CustomActions storage={storage} userID={userID} {...props} />;
+    };
+    const renderCustomView = (props) => {
+        const { currentMessage } = props;
+        if (currentMessage.location) {
+            return (
+                <MapView
+                    style={{ width: 150, height: 100, borderRadius: 13, margin: 3 }}
+                    region={{
+                        latitude: currentMessage.location.latitude,
+                        longitude: currentMessage.location.longitude,
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421,
+                    }}
+                />
+            );
+        }
+        return null;
+    };
     return (
         <ImageBackground source={require("../img/chatbox-img.gif")} style={styles.backgroundImage}>
             <View style={styles.container}>
@@ -84,10 +105,12 @@ export default Chat = ({ route, db, isConnected }) => {
                     messages={messages}
                     renderBubble={renderBubble}
                     renderDay={renderDay}
+                    renderActions={renderCustomActions}
                     onSend={(messages) => onSend(messages)}
                     renderInputToolbar={renderInputToolbar}
+                    renderCustomView={renderCustomView}
                     user={{
-                        _id: 1,
+                        _id: userID,
                     }}
                 />
                 {Platform.OS === "android" ? <KeyboardAvoidingView behavior="height" /> : null}
