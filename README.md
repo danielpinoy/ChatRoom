@@ -68,6 +68,14 @@ myChat incorporates accessibility features to ensure a better user experience fo
 
 ## Screenshots
 
+### Login Screenshot
+
+![Screenshot 1](/img/431233510_1570587330450109_747182210155911213_n.jpg)
+
+### Chat Screenshot
+
+![Screenshot 2](/img/431236800_7999276203422937_1204792064803437901_n.jpg)
+
 ## GitHub
 
 [Github](https://github.com/danielpinoy/ChatRoom)
