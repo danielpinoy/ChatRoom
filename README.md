@@ -70,11 +70,11 @@ myChat incorporates accessibility features to ensure a better user experience fo
 
 ### Login Screenshot
 
-![Screenshot 1](/img/431233510_1570587330450109_747182210155911213_n.jpg)
+![Screenshot 1](/img/431233510_1570587330450109_747182210155911213_n.jpg "width=50%")
 
 ### Chat Screenshot
 
-![Screenshot 2](/img/431236800_7999276203422937_1204792064803437901_n.jpg)
+![Screenshot 2](/img/431236800_7999276203422937_1204792064803437901_n.jpg "width=70%")
 
 ## GitHub
 
