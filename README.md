@@ -70,7 +70,7 @@ myChat incorporates accessibility features to ensure a better user experience fo
 
 ### Login Screenshot
 
-![[Screenshot 1](/img/431233510_1570587330450109_747182210155911213_n.jpg)](/img/431233510_1570587330450109_747182210155911213_n.jpg "width=50% height=30%")
+![Screenshot 1](/img/431233510_1570587330450109_747182210155911213_n.jpg "width=50% height=30%")
 
 ### Chat Screenshot
 
